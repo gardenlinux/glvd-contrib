@@ -26,3 +26,23 @@ podman run -it --rm -p 5432:5432 -e POSTGRES_USER=glvd -e POSTGRES_PASSWORD=glvd
 ```
 
 You can now connect any local SQL client to localhost on the provided port/credentials.
+
+## Dev VM
+
+In case you want to have a local setup for playing with GLVD, you might use this [lima vm](https://github.com/lima-vm/lima) setup:
+
+```bash
+# With lima installed, you can setup the environment like this
+host$ limactl create --name=glvd-temp dev-vm.yaml
+host$ limactl start glvd
+host$ limactl shell glvd
+
+# You may start the database as a container like so
+glvd$ podman run -it --rm -p 5432:5432 -e POSTGRES_USER=glvd -e POSTGRES_PASSWORD=glvd -e POSTGRES_DB=glvd ghcr.io/gardenlinux/glvd-postgres:edge
+
+# You have access to the glvd commands
+glvd$ which glvd
+/home/user.linux/.local/bin/glvd
+glvd$ which glvd-data
+/home/user.linux/.local/bin/glvd-data
+```
