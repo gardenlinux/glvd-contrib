@@ -57,6 +57,15 @@ jobs:
           PGHOST: postgres
           PGPORT: 5432
 
+      - name: Run data ingestion (ingest-debsrc - debian bookworm)
+        run: glvd-data ingest-debsrc debian bookworm data/ingest-debsrc/lists/deb.debian.org_debian_dists_bookworm_main_source_Sources
+        env:
+          PGUSER: glvd
+          PGDATABASE: glvd
+          PGPASSWORD: glvd
+          PGHOST: postgres
+          PGPORT: 5432
+
       - name: Run data ingestion (ingest-debsec - debian)
         run: glvd-data ingest-debsec debian security-tracker/data
         env:
