@@ -27,6 +27,8 @@ provision:
     git clone https://github.com/gardenlinux/glvd-data-ingestion
     pip install --break-system-packages --no-deps --editable ./glvd
 
+    echo 'localhost:5432:glvd:glvd:glvd' > $HOME/.pgpass
+
     cat << EOF > $HOME/.bashrc
     export PATH=$HOME/.local/bin:$PATH
     export PGUSER=glvd
