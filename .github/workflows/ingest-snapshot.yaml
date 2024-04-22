@@ -28,7 +28,7 @@ jobs:
 
       - name: prepare
         run: |
-          apt-get update
+          apt-get -q update
           apt-get -yqq install git curl debian-archive-keyring postgresql-client
           mkdir -p data/ingest-debsec/{debian,gardenlinux}/CVE
           mkdir -p data/ingest-debsec/debian/CVE
@@ -42,7 +42,7 @@ jobs:
               --output conf/ingest-debsrc/apt.conf
           curl https://raw.githubusercontent.com/gardenlinux/glvd-data-ingestion/main/conf/ingest-debsrc/debian.sources \
               --output conf/ingest-debsrc/debian.sources
-          APT_CONFIG=conf/ingest-debsrc/apt.conf apt update \
+          APT_CONFIG=conf/ingest-debsrc/apt.conf apt-get -q update \
             -o Dir="$PWD/data/ingest-debsrc/" \
             -o Dir::Etc::sourcelist="$PWD/conf/ingest-debsrc/debian.sources" \
             -o Dir::State="$PWD/data/ingest-debsrc/"
