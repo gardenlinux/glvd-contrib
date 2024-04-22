@@ -37,6 +37,11 @@ jobs:
           touch data/ingest-debsrc/var/lib/dpkg/status
           curl https://salsa.debian.org/security-tracker-team/security-tracker/-/raw/master/data/CVE/list?ref_type=heads \
               --output data/ingest-debsec/debian/CVE/list
+          mkdir -p conf/ingest-debsrc/
+          curl https://raw.githubusercontent.com/gardenlinux/glvd-data-ingestion/main/conf/ingest-debsrc/apt.conf \
+              --output conf/ingest-debsrc/apt.conf
+          curl https://raw.githubusercontent.com/gardenlinux/glvd-data-ingestion/main/conf/ingest-debsrc/debian.sources \
+              --output conf/ingest-debsrc/debian.sources
           APT_CONFIG=conf/ingest-debsrc/apt.conf apt update \
             -o Dir="$PWD/data/ingest-debsrc/" \
             -o Dir::Etc::sourcelist="$PWD/conf/ingest-debsrc/debian.sources" \
