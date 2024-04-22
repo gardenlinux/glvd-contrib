@@ -48,7 +48,7 @@ jobs:
             -o Dir::State="$PWD/data/ingest-debsrc/"
 
       - name: Run data ingestion (ingest-debsrc - debian trixie)
-        run: glvd-data ingest-debsrc debian trixie /opt/glvd-data-ingestion/ingest-debsrc/lists/deb.debian.org_debian_dists_trixie_main_source_Sources
+        run: glvd-data ingest-debsrc debian trixie data/ingest-debsrc/lists/deb.debian.org_debian_dists_trixie_main_source_Sources
         env:
           PGUSER: glvd
           PGDATABASE: glvd
