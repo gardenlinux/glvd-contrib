@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  container-job:
+  dump-db-snapshot:
     runs-on: ubuntu-latest
     container: ghcr.io/gardenlinux/glvd:edge
 
@@ -42,26 +42,17 @@ jobs:
             -o Dir::Etc::sourcelist="$PWD/conf/ingest-debsrc/debian.sources" \
             -o Dir::State="$PWD/data/ingest-debsrc/"
 
+      - name: Run data ingestion (ingest-debsrc - debian trixie)
+        run: glvd-data ingest-debsrc debian trixie /opt/glvd-data-ingestion/ingest-debsrc/lists/deb.debian.org_debian_dists_trixie_main_source_Sources
+        env:
+          PGUSER: glvd
+          PGDATABASE: glvd
+          PGPASSWORD: glvd
+          PGHOST: postgres
+          PGPORT: 5432
+
       - name: Run data ingestion (nvd)
         run: glvd-data ingest-nvd
-        env:
-          PGUSER: glvd
-          PGDATABASE: glvd
-          PGPASSWORD: glvd
-          PGHOST: postgres
-          PGPORT: 5432
-
-      - name: Run data ingestion (ingest-debsec - debian)
-        run: glvd-data ingest-debsec debian data/ingest-debsec/debian
-        env:
-          PGUSER: glvd
-          PGDATABASE: glvd
-          PGPASSWORD: glvd
-          PGHOST: postgres
-          PGPORT: 5432
-
-      - name: Run data ingestion (ingest-debsec - gardenlinux)
-        run: glvd-data ingest-debsec gardenlinux data/ingest-debsec/gardenlinux
         env:
           PGUSER: glvd
           PGDATABASE: glvd
