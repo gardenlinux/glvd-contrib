@@ -1,0 +1,22 @@
+services:
+  glvd:
+    image: ghcr.io/gardenlinux/glvd:edge
+    hostname: glvd
+    environment:
+      PGUSER: glvd
+      PGDATABASE: glvd
+      PGPASSWORD: glvd
+      PGHOST: glvd-postgres
+      PGPORT: 5432
+    ports:
+      - "8000:8000"
+  glvd-postgres:
+    build:
+      dockerfile: Containerfile
+    hostname: glvd-postgres
+    environment:
+      POSTGRES_USER: glvd
+      POSTGRES_DB: glvd
+      POSTGRES_PASSWORD: glvd
+    ports:
+      - "5432:5432"
