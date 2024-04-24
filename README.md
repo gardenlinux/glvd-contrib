@@ -46,3 +46,37 @@ glvd$ which glvd
 glvd$ which glvd-data
 /home/user.linux/.local/bin/glvd-data
 ```
+
+
+
+## Setup glvd with local service
+
+In _this_ directory, run:
+
+```bash
+glvd-contrib$ podman build -t my-glvd-postgres .
+glvd-contrib$ podman run -it --rm -p 5432:5432 -e POSTGRES_USER=glvd -e POSTGRES_PASSWORD=glvd -e POSTGRES_DB=glvd  localhost/my-glvd-postgres:latest
+
+```
+
+In the _glvd_ directory, run:
+
+```bash
+glvd$ virtualenv myvirtualenv
+glvd$ source myvirtualenv/bin/activate
+venv-in-glvd$ pipx install poetry
+venv-in-glvd$ poetry install
+venv-in-glvd$ export PGUSER=glvd
+venv-in-glvd$ xport PGDATABASE=glvd
+venv-in-glvd$ export PGPASSWORD=glvd
+venv-in-glvd$ export PGHOST=localhost
+venv-in-glvd$ export PGPORT=5432
+venv-in-glvd$ PYTHONPATH=src quart --app glvd.web run
+```
+
+It's now expected that you can interact with the HTTP API on your host, for example:
+
+```bash
+$ curl http://127.0.0.1:5000/readiness
+{"db_check":{"status":"ok"},"status":"ok"}
+```
