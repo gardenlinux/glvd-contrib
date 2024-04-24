@@ -1,0 +1,5 @@
+GET http://127.0.0.1:5000/readiness
+
+###
+
+GET http://127.0.0.1:5000/v1/cves/findByCpe?cpeName=cpe:2.3:o:debian:debian_linux:13:*:*:*:*:*:*:*
