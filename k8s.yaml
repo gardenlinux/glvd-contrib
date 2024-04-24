@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: glvd
+spec:
+  containers:
+  - name: glvd
+    image: ghcr.io/gardenlinux/glvd:edge
+    ports:
+    - containerPort: 8000
+      hostPort: 9999
+    env:
+      - name: PGUSER
+        value: glvd
+      - name: PGDATABASE
+        value: glvd
+      - name: PGPASSWORD
+        value: glvd
+      - name: PGHOST
+        value: glvd-postgres
+      - name: PGPORT
+        value: "5432"
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: glvd-postgres
+spec:
+  containers:
+  - name: glvd
+    image: localhost/mypg:latest
+    ports:
+    - containerPort: 5432
+      hostPort: 6543
+    env:
+      - name: POSTGRES_USER
+        value: glvd
+      - name: POSTGRES_DB
+        value: glvd
+      - name: POSTGRES_PASSWORD
+        value: glvd
+

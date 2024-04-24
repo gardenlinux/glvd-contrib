@@ -46,3 +46,10 @@ glvd$ which glvd
 glvd$ which glvd-data
 /home/user.linux/.local/bin/glvd-data
 ```
+
+## K8s deployment using Podman
+
+```
+podman build -t mypg .
+podman play kube k8s.yaml
+```
