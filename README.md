@@ -67,7 +67,7 @@ glvd$ source myvirtualenv/bin/activate
 venv-in-glvd$ pipx install poetry
 venv-in-glvd$ poetry install
 venv-in-glvd$ export PGUSER=glvd
-venv-in-glvd$ xport PGDATABASE=glvd
+venv-in-glvd$ export PGDATABASE=glvd
 venv-in-glvd$ export PGPASSWORD=glvd
 venv-in-glvd$ export PGHOST=localhost
 venv-in-glvd$ export PGPORT=5432

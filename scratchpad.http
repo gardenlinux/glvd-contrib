@@ -3,3 +3,10 @@ GET http://127.0.0.1:5000/readiness
 ###
 
 GET http://127.0.0.1:5000/v1/cves/findByCpe?cpeName=cpe:2.3:o:debian:debian_linux:13:*:*:*:*:*:*:*
+
+###
+
+POST  http://127.0.0.1:5000/v1/cves/findBySources
+Content-Type: application/x-www-form-urlencoded
+
+source=["debian_trixie_2048_0.20221023.1237-1"]
