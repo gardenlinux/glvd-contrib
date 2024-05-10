@@ -83,3 +83,24 @@ jobs:
           name: glvd.sql
           path: glvd.sql
           retention-days: 2
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.22.3'
+
+      - run: |
+          go install github.com/KarnerTh/mermerd@latest
+          mermerd -c "postgresql://glvd:glvd@postgres:5432/glvd" -s public --useAllTables
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: result.mmd
+          path: result.mmd
+          retention-days: 2
+
+      - name: Output ERM
+        run: |
+            echo '## ERM' >> $GITHUB_STEP_SUMMARY
+            echo '```mermaid' >> $GITHUB_STEP_SUMMARY
+            cat result.mmd >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
