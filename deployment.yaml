@@ -1,0 +1,39 @@
+kind: Deployment
+metadata:
+  labels:
+    app: glvd
+  name: glvd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "glvd"
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: glvd
+    spec:
+      containers:
+      - image: ghcr.io/gardenlinux/glvd-api:edge_bare
+        name: glvd-api
+      - image: ghcr.io/gardenlinux/glvd-postgres:edgesampledata
+        name: glvd-postgres
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: glvd
+  name: glvd
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: glvd
+  type: LoadBalancer
