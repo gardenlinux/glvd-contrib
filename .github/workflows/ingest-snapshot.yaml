@@ -53,6 +53,12 @@ jobs:
             -o Dir::Etc::sourcelist="$PWD/conf/ingest-debsrc/debian.sources" \
             -o Dir::State="$PWD/data/ingest-debsrc/"
           git clone --depth=1 https://salsa.debian.org/security-tracker-team/security-tracker
+          mkdir -p gardenlinux-packages
+          echo todo how to deal with multi arch?
+          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.3/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.gz
+          curl -s https://packages.gardenlinux.io/gardenlinux/dists/today/main/binary-amd64/Packages.gz > gardenlinux-packages/today.gz
+          gunzip gardenlinux-packages/1443.gz
+          gunzip gardenlinux-packages/today.gz
 
       - name: Run data ingestion (ingest-debsrc - debian trixie)
         run: glvd-data ingest-debsrc debian trixie data/ingest-debsrc/lists/deb.debian.org_debian_dists_trixie_main_source_Sources
@@ -62,6 +68,12 @@ jobs:
 
       - name: Run data ingestion (ingest-debsec - debian)
         run: glvd-data ingest-debsec debian security-tracker/data
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux today)
+        run: glvd-data ingest-debsrc gardenlinux today ./gardenlinux-packages/today
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443)
+        run: glvd-data ingest-debsrc gardenlinux 1443 ./gardenlinux-packages/1443
 
       - name: Run data ingestion (nvd)
         run: glvd-data ingest-nvd
