@@ -54,6 +54,7 @@ jobs:
             -o Dir::State="$PWD/data/ingest-debsrc/"
           git clone --depth=1 https://salsa.debian.org/security-tracker-team/security-tracker
           mkdir -p gardenlinux-packages
+          echo todo how to deal with multi arch?
           curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.3/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.gz
           curl -s https://packages.gardenlinux.io/gardenlinux/dists/today/main/binary-amd64/Packages.gz > gardenlinux-packages/today.gz
           gunzip gardenlinux-packages/1443.gz
