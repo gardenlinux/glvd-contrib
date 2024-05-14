@@ -63,6 +63,19 @@ jobs:
       - name: Run data ingestion (ingest-debsec - debian)
         run: glvd-data ingest-debsec debian security-tracker/data
 
+      - name: Download Garden Linux Package files
+        run: |
+            curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.3/main/binary-amd64/Packages.gz > gl-1443.gz
+            curl -s https://packages.gardenlinux.io/gardenlinux/dists/today/main/binary-amd64/Packages.gz > gl-today.gz
+            gunzip gl-1443.gz
+            gunzip gl-today.gz
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux today)
+        run: glvd-data ingest-debsrc gardenlinux today ./gl-today
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443)
+        run: glvd-data ingest-debsrc gardenlinux 1443 ./gl-1443
+
       - name: Run data ingestion (nvd)
         run: glvd-data ingest-nvd
 
