@@ -46,3 +46,31 @@ glvd$ which glvd
 glvd$ which glvd-data
 /home/user.linux/.local/bin/glvd-data
 ```
+
+## Random notes
+
+### How to parse source package versions
+
+Download the package list:
+
+```
+curl -s https://packages.gardenlinux.io/gardenlinux/dists/today/main/binary-amd64/Packages.gz | gunzip > package-list
+```
+
+Inside the `glvd` root directory, with the virtualenv enabled and dependencies installed, run:
+
+```
+python3 -m glvd.data.debsrc path/to/package-list
+```
+
+### Run ingestion locally
+
+Configure the postgres db credentials (`PG..` env vars)
+
+Inside the `glvd` root directory, with the virtualenv enabled and dependencies installed, run:
+
+```
+python3 -m glvd.cli.data.ingest_debsrc gardenlinux today path/to/package-list
+```
+
+(Replace `today` with the version, like `1443`)
