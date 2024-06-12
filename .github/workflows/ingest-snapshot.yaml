@@ -61,7 +61,7 @@ jobs:
           curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.3/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.3.gz
           curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.5/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.5.gz
           curl -s https://packages.gardenlinux.io/gardenlinux/dists/today/main/binary-amd64/Packages.gz > gardenlinux-packages/today.gz
-          gunzip gardenlinux-packages/1443.gz
+          gunzip gardenlinux-packages/1443*.gz
           gunzip gardenlinux-packages/today.gz
 
       - name: Run data ingestion (ingest-debsrc - debian trixie)
