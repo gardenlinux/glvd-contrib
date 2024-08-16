@@ -2,7 +2,7 @@ CREATE TYPE description AS (lang TEXT, value TEXT);
 
 CREATE TYPE tag AS (sourceIdentifier TEXT, tags TEXT []);
 
-CREATE TYPE reference AS ("url" TEXT, source TEXT, tags TEXT []);
+CREATE TYPE reference AS ("url" TEXT, source TEXT);
 
 CREATE TYPE cvssMetricV40 AS (
     source TEXT,
@@ -51,5 +51,6 @@ CREATE TABLE cve_item (
     cveTags tag [],
     descriptions description [],
     "references" reference [],
+    metrics metrics,
     CONSTRAINT cve_item_pk PRIMARY KEY (id)
 );

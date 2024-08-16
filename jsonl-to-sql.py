@@ -9,8 +9,14 @@ def attribute_value_or_null(obj, attr):
         val = obj[attr]
         if isinstance(val, list):
             # fixme: handle cases of array length != 1
-            x = val[0]
-            return f"ARRAY[('{x['lang']}', '{x['value']}')::description]"
+            element = val[0]
+            values = ', '.join('\'' + item + '\'' for item in element.values())
+            return f"ARRAY[({values})::{attr}]"
+
+        # metrics is a dict
+        # converting this seems to me more complex
+        # if isinstance(val, dict):
+        #     return 'foo'
 
         if isinstance(val, str):
             txt = html.escape(val, True)
@@ -29,11 +35,10 @@ def object_to_sql_insert(table_name, obj, columns):
 
 with open('few-cve.jsonl', 'r') as f:
     for line in f:
-        try:
-            cve = json.loads(line)
-            print(object_to_sql_insert('cve_item', cve, 
-                ['id', 'sourceIdentifier', 'vulnStatus', 'published', 'lastModified', 'evaluatorComment', 'evaluatorSolution', 'cisaExploitAdd', 'cisaActionDue', 'cisaRequiredAction', 'cisaVulnerabilityName', 'cveTags', 'descriptions']
-                                       )
-                )
-        except:
-            print('error')
+        cve = json.loads(line)
+        print(object_to_sql_insert('cve_item', cve, 
+            ['id', 'sourceIdentifier', 'vulnStatus', 'published', 'lastModified', 'evaluatorComment',
+                'evaluatorSolution', 'cisaExploitAdd', 'cisaActionDue', 'cisaRequiredAction', 'cisaVulnerabilityName',
+                'cveTags', 'descriptions', 'references']
+                                    )
+        )
