@@ -1,0 +1,24 @@
+images:
+- location: "https://cloud.debian.org/images/cloud/trixie/daily/latest/debian-13-genericcloud-amd64-daily.qcow2"
+  arch: "x86_64"
+- location: "https://cloud.debian.org/images/cloud/trixie/daily/latest/debian-13-genericcloud-arm64-daily.qcow2"
+  arch: "aarch64"
+
+provision:
+- mode: system
+  script: |
+    #!/bin/bash
+    set -eux -o pipefail
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -yqq git curl debian-archive-keyring postgresql-client
+    apt-get install -yqq python3-asyncpg python3-pip python3-poetry-core python3-requests python3-quart python3-sqlalchemy python3-psycopg2
+    apt-get install -yqq crun iptables podman slirp4netns uidmap dbus-user-session systemd-container
+
+- mode: user
+  script: |
+    #!/bin/bash
+    set -eux -o pipefail
+    mkdir -p "$HOME"/.config/containers
+    echo 'unqualified-search-registries=["docker.io", "quay.io"]' > "$HOME"/.config/containers/registries.conf
+    sed -Ei 's/^#cgroup_manager = "systemd"/cgroup_manager = "cgroupfs"/' /usr/share/containers/containers.conf
