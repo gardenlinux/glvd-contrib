@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  db:
+    image: ghcr.io/gardenlinux/glvd-postgres:edgenotls
+    restart: unless-stopped
+    container_name: db
+    environment:
+      - POSTGRES_USER=glvd
+      - POSTGRES_PASSWORD=glvd
+      - POSTGRES_DB=glvd
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./db:/var/lib/postgresql/data
+
+  api:
+    depends_on:
+      - db
+    build:
+      context: ./
+      dockerfile: ./Containerfile
+    environment:
+      - DBUSER=glvd
+      - DBPASS=glvd
+      - DBHOST=db
+      - DBNAME=glvd
+
+volumes:
+  db:
+    driver: local

@@ -21,7 +21,7 @@ from sqlalchemy.types import (
 )
 
 import enum
-
+import os
 
 @enum.verify(enum.UNIQUE)
 class CvssSeverity(enum.Enum):
@@ -132,7 +132,11 @@ class Nist_Cve(Base):
 
 
 # Connect to the database
-DATABASE_URI = f"postgresql://glvd:glvd@localhost/glvd"
+DBUSER = os.environ["DBUSER"]
+DBPASS = os.environ["DBPASS"]
+DBHOST = os.environ["DBHOST"]
+DBNAME = os.environ["DBNAME"]
+DATABASE_URI = f"postgresql://{DBUSER}:{DBPASS}@{DBHOST}/{DBNAME}"
 engine = create_engine(DATABASE_URI, echo=True)
 
 # Create tables in database
