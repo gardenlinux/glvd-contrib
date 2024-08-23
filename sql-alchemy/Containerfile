@@ -5,6 +5,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -yqq git curl debian-archive-keyring postgresql-client && \
     apt-get install -yqq python3-asyncpg python3-pip python3-poetry-core python3-requests python3-quart python3-sqlalchemy python3-psycopg2
 
-COPY ./asyncpg.py /test.py
+COPY ascyncpg.py /test.py
 
 CMD python3 /test.py
