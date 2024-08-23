@@ -1,3 +1,4 @@
+import os
 import asyncio
 import asyncpg
 import datetime
@@ -5,7 +6,7 @@ import datetime
 async def main():
     # Establish a connection to an existing database named "test"
     # as a "postgres" user.
-    asyncio.sleep(15)
+    await asyncio.sleep(5)
 
     DBUSER = os.environ["DBUSER"]
     DBPASS = os.environ["DBPASS"]
@@ -31,6 +32,7 @@ async def main():
         'SELECT * FROM users WHERE name = $1', 'Bob')
     # *row* now contains
     # asyncpg.Record(id=1, name='Bob', dob=datetime.date(1984, 3, 1))
+    print(row)
 
     # Close the connection.
     await conn.close()
