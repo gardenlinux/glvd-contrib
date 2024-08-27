@@ -55,9 +55,13 @@ jobs:
           git clone --depth=1 https://salsa.debian.org/security-tracker-team/security-tracker
           mkdir -p gardenlinux-packages
           echo todo how to deal with multi arch?
-          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.3/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.gz
+          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.0/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.0.gz
+          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.1/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.1.gz
+          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.2/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.2.gz
+          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.3/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.3.gz
+          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.5/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.5.gz
           curl -s https://packages.gardenlinux.io/gardenlinux/dists/today/main/binary-amd64/Packages.gz > gardenlinux-packages/today.gz
-          gunzip gardenlinux-packages/1443.gz
+          gunzip gardenlinux-packages/1443*.gz
           gunzip gardenlinux-packages/today.gz
 
       - name: Run data ingestion (ingest-debsrc - debian trixie)
@@ -72,8 +76,20 @@ jobs:
       - name: Run data ingestion (ingest-debsrc - gardenlinux today)
         run: glvd-data ingest-debsrc gardenlinux today ./gardenlinux-packages/today
 
-      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443)
-        run: glvd-data ingest-debsrc gardenlinux 1443 ./gardenlinux-packages/1443
+      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443.0)
+        run: glvd-data ingest-debsrc gardenlinux 1443.0 ./gardenlinux-packages/1443.0
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443.1)
+        run: glvd-data ingest-debsrc gardenlinux 1443.1 ./gardenlinux-packages/1443.1
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443.2)
+        run: glvd-data ingest-debsrc gardenlinux 1443.2 ./gardenlinux-packages/1443.2
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443.3)
+        run: glvd-data ingest-debsrc gardenlinux 1443.3 ./gardenlinux-packages/1443.3
+
+      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443.5)
+        run: glvd-data ingest-debsrc gardenlinux 1443 ./gardenlinux-packages/1443.5
 
       - name: Run data ingestion (nvd)
         run: glvd-data ingest-nvd
