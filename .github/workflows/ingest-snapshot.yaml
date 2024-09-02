@@ -88,7 +88,7 @@ jobs:
         run: |
           echo "$PGHOST:$PGPORT:$PGDATABASE:$PGUSER:$PGPASSWORD" > ~/.pgpass
           chmod 0600 ~/.pgpass
-          pg_dump --column-inserts -h postgres -p 5432 -U glvd glvd > glvd.sql
+          pg_dump -h postgres -p 5432 -U glvd glvd > glvd.sql
 
       - uses: actions/upload-artifact@v4
         with:
