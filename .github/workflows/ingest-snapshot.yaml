@@ -32,57 +32,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: prepare
-        run: |
-          apt-get -q update
-          apt-get -yqq install git curl debian-archive-keyring postgresql-client
-          mkdir -p data/ingest-debsec/{debian,gardenlinux}/CVE
-          mkdir -p data/ingest-debsec/debian/CVE
-          mkdir -p data/ingest-debsrc/debian
-          mkdir -p data/ingest-debsrc/var/lib/dpkg
-          touch data/ingest-debsrc/var/lib/dpkg/status
-          curl https://salsa.debian.org/security-tracker-team/security-tracker/-/raw/master/data/CVE/list?ref_type=heads \
-              --output data/ingest-debsec/debian/CVE/list
-          mkdir -p conf/ingest-debsrc/
-          curl https://raw.githubusercontent.com/gardenlinux/glvd-data-ingestion/main/conf/ingest-debsrc/apt.conf \
-              --output conf/ingest-debsrc/apt.conf
-          curl https://raw.githubusercontent.com/gardenlinux/glvd-data-ingestion/main/conf/ingest-debsrc/debian.sources \
-              --output conf/ingest-debsrc/debian.sources
-          APT_CONFIG=conf/ingest-debsrc/apt.conf apt-get -q update \
-            -o Dir="$PWD/data/ingest-debsrc/" \
-            -o Dir::Etc::sourcelist="$PWD/conf/ingest-debsrc/debian.sources" \
-            -o Dir::State="$PWD/data/ingest-debsrc/"
-          git clone --depth=1 https://salsa.debian.org/security-tracker-team/security-tracker
-          mkdir -p gardenlinux-packages
-          echo todo how to deal with multi arch?
-          curl -s https://packages.gardenlinux.io/gardenlinux/dists/1443.3/main/binary-amd64/Packages.gz > gardenlinux-packages/1443.gz
-          curl -s https://packages.gardenlinux.io/gardenlinux/dists/today/main/binary-amd64/Packages.gz > gardenlinux-packages/today.gz
-          gunzip gardenlinux-packages/1443.gz
-          gunzip gardenlinux-packages/today.gz
-
-      - name: Run data ingestion (ingest-debsrc - debian trixie)
-        run: glvd-data ingest-debsrc debian trixie data/ingest-debsrc/lists/deb.debian.org_debian_dists_trixie_main_source_Sources
-
-      - name: Run data ingestion (ingest-debsrc - debian bookworm)
-        run: glvd-data ingest-debsrc debian bookworm data/ingest-debsrc/lists/deb.debian.org_debian_dists_bookworm_main_source_Sources
-
-      - name: Run data ingestion (ingest-debsec - debian)
-        run: glvd-data ingest-debsec debian security-tracker/data
-
-      - name: Run data ingestion (ingest-debsrc - gardenlinux today)
-        run: glvd-data ingest-debsrc gardenlinux today ./gardenlinux-packages/today
-
-      - name: Run data ingestion (ingest-debsrc - gardenlinux 1443)
-        run: glvd-data ingest-debsrc gardenlinux 1443 ./gardenlinux-packages/1443
-
-      - name: Run data ingestion (nvd)
-        run: glvd-data ingest-nvd
-
-      - name: Run data combination (combine-deb)
-        run: glvd-data combine-deb
-
-      - name: Run data combination (combine-all)
-        run: glvd-data combine-all
+      - name: Ingest Data
+        run: /usr/local/src/ingest-postgres.sh
 
       - name: Dump Database Snapshot
         run: |
