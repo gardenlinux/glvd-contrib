@@ -35,10 +35,14 @@ jobs:
       - name: Ingest Data
         run: /usr/local/src/ingest-postgres.sh
 
-      - name: Dump Database Snapshot
-        run: |
+      - run: |
           echo "$PGHOST:$PGPORT:$PGDATABASE:$PGUSER:$PGPASSWORD" > ~/.pgpass
           chmod 0600 ~/.pgpass
+
+      - run: psql glvd -f extra-schema.sql
+
+      - name: Dump Database Snapshot
+        run: |
           pg_dump -h postgres -p 5432 -U glvd glvd > glvd.sql
 
       - uses: actions/upload-artifact@v4
