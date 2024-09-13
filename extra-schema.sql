@@ -12,8 +12,6 @@ CREATE OR REPLACE VIEW public.sourcepackagecve
         (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'baseScore')::numeric
       WHEN data->'metrics'->'cvssMetricV30' IS NOT NULL THEN
         (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'baseScore')::numeric
-      WHEN data->'metrics'->'cvssMetricV2' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'baseScore')::numeric
       ELSE NULL
     END AS base_score,
      CASE
@@ -23,8 +21,6 @@ CREATE OR REPLACE VIEW public.sourcepackagecve
         (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'vectorString')::text
       WHEN data->'metrics'->'cvssMetricV30' IS NOT NULL THEN
         (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'vectorString')::text
-      WHEN data->'metrics'->'cvssMetricV2' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'vectorString')::text
       ELSE NULL
     END AS vector_string,
     deb_cve.deb_source AS source_package_name,
