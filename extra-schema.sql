@@ -5,6 +5,17 @@
 CREATE OR REPLACE VIEW public.sourcepackagecve
  AS
  SELECT all_cve.cve_id AS cve_id,
+     CASE
+      WHEN data->'metrics'->'cvssMetricV40' IS NOT NULL THEN
+        (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'baseScore')::numeric
+      WHEN data->'metrics'->'cvssMetricV31' IS NOT NULL THEN
+        (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'baseScore')::numeric
+      WHEN data->'metrics'->'cvssMetricV30' IS NOT NULL THEN
+        (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'baseScore')::numeric
+      WHEN data->'metrics'->'cvssMetricV2' IS NOT NULL THEN
+        (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'baseScore')::numeric
+      ELSE NULL
+    END AS base_score,
     deb_cve.deb_source AS source_package_name,
     deb_cve.deb_version AS source_package_version,
     dist_cpe.cpe_version AS gardenlinux_version,
