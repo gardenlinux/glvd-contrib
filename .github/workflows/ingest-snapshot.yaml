@@ -47,9 +47,7 @@ jobs:
 
       - name: Dump Database Schema
         run: |
-          echo "$PGHOST:$PGPORT:$PGDATABASE:$PGUSER:$PGPASSWORD" > ~/.pgpass
-          chmod 0600 ~/.pgpass
-          pg_dump -h postgres -p 5432 -U glvd glvd > glvd-schema.sql
+          pg_dump --schema-only -h postgres -p 5432 -U glvd glvd > glvd-schema.sql
 
       - uses: actions/upload-artifact@v4
         with:
