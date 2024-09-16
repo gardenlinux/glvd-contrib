@@ -5,29 +5,17 @@
 CREATE OR REPLACE VIEW public.sourcepackagecve
  AS
  SELECT all_cve.cve_id AS cve_id,
-     CASE
-      WHEN data->'metrics'->'cvssMetricV40' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'baseScore')::numeric
-      WHEN data->'metrics'->'cvssMetricV31' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'baseScore')::numeric
-      WHEN data->'metrics'->'cvssMetricV30' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'baseScore')::numeric
-      ELSE NULL
-    END AS base_score,
-     CASE
-      WHEN data->'metrics'->'cvssMetricV40' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'vectorString')::text
-      WHEN data->'metrics'->'cvssMetricV31' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'vectorString')::text
-      WHEN data->'metrics'->'cvssMetricV30' IS NOT NULL THEN
-        (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'vectorString')::text
-      ELSE NULL
-    END AS vector_string,
     deb_cve.deb_source AS source_package_name,
     deb_cve.deb_version AS source_package_version,
     dist_cpe.cpe_version AS gardenlinux_version,
     deb_cve.debsec_vulnerable AS is_vulnerable,
-    all_cve.data ->> 'published'::text AS cve_published_date
+    all_cve.data ->> 'published'::text AS cve_published_date,
+    (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'baseScore')::numeric AS base_score_v40,
+    (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'baseScore')::numeric AS base_score_v31,
+    (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'baseScore')::numeric AS base_score_v30,
+    (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'vectorString')::text AS vector_string_v40,
+    (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'vectorString')::text AS vector_string_v31,
+    (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'vectorString')::text AS vector_string_v30
    FROM all_cve
      JOIN deb_cve USING (cve_id)
      JOIN dist_cpe ON deb_cve.dist_id = dist_cpe.id
