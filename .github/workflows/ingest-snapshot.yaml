@@ -32,6 +32,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - uses: oras-project/setup-oras@v1
+
       - name: Ingest Data
         run: /usr/local/src/ingest-postgres.sh
 
@@ -48,6 +50,12 @@ jobs:
       - name: Dump Database Schema
         run: |
           pg_dump --schema-only -h postgres -p 5432 -U glvd glvd > glvd-schema.sql
+
+      - run: oras login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
+
+      - run: oras push ghcr.io/gardenlinux/glvd-db-snapshot:latest glvd.sql
+
+      - run: oras logout ghcr.io
 
       - uses: actions/upload-artifact@v4
         with:
