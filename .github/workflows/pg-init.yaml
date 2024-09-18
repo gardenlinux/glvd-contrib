@@ -2,10 +2,6 @@ name: pg init container
 
 on:
   workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-    - main
 
 permissions:
   # Checkout repository
@@ -27,7 +23,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y qemu-user-static
     - run: |
-        gh run download 10905326712 -n glvd.sql --repo gardenlinux/glvd-contrib
+        LATEST_RUN_ID=$(gh run list --repo gardenlinux/glvd-contrib --branch main --json workflowDatabaseId --limit 1 | jq -r '.[0].workflowDatabaseId')
+        gh run download $LATEST_RUN_ID -n glvd.sql --repo gardenlinux/glvd-contrib
       env:
         GH_TOKEN: ${{ github.token }}
     - name: Build Image
