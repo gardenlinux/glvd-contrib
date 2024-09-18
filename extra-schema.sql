@@ -10,17 +10,40 @@ CREATE OR REPLACE VIEW public.sourcepackagecve
     dist_cpe.cpe_version AS gardenlinux_version,
     deb_cve.debsec_vulnerable AS is_vulnerable,
     all_cve.data ->> 'published'::text AS cve_published_date,
+    CASE
+     WHEN (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'baseScore')::numeric IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'baseScore')::numeric
+     WHEN (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'baseScore')::numeric IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'baseScore')::numeric
+     WHEN (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'baseScore')::numeric IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'baseScore')::numeric
+     WHEN (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'baseScore')::numeric IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'baseScore')::numeric
+    END AS base_score,
+    CASE
+     WHEN (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'vectorString')::text IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'vectorString')::text
+     WHEN (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'vectorString')::text IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'vectorString')::text
+     WHEN (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'vectorString')::text IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'vectorString')::text
+     WHEN (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'vectorString')::text IS NOT NULL THEN
+    (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'vectorString')::text
+    END AS vector_string,
     (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'baseScore')::numeric AS base_score_v40,
     (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'baseScore')::numeric AS base_score_v31,
     (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'baseScore')::numeric AS base_score_v30,
+    (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'baseScore')::numeric AS base_score_v2,
     (data->'metrics'->'cvssMetricV40'->0->'cvssData'->>'vectorString')::text AS vector_string_v40,
     (data->'metrics'->'cvssMetricV31'->0->'cvssData'->>'vectorString')::text AS vector_string_v31,
-    (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'vectorString')::text AS vector_string_v30
+    (data->'metrics'->'cvssMetricV30'->0->'cvssData'->>'vectorString')::text AS vector_string_v30,
+    (data->'metrics'->'cvssMetricV2'->0->'cvssData'->>'vectorString')::text AS vector_string_v2
    FROM all_cve
      JOIN deb_cve USING (cve_id)
      JOIN dist_cpe ON deb_cve.dist_id = dist_cpe.id
-  WHERE dist_cpe.cpe_product = 'gardenlinux'::text
-  ORDER BY all_cve.cve_id;
+  WHERE
+    dist_cpe.cpe_product = 'gardenlinux'::text AND
+    deb_cve.debsec_vulnerable = TRUE;
 
 ALTER TABLE public.sourcepackagecve
     OWNER TO glvd;
