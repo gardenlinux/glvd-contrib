@@ -1,0 +1,52 @@
+name: pg init container
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+    - main
+
+permissions:
+  # Checkout repository
+  contents: read
+  # Push container images
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      IMAGE_NAME: gardenlinux/glvd-postgres-init
+      IMAGE_TAG: latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Install qemu dependency for multi-arch build
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+    - run: |
+        gh run download 10905326712 -n glvd.sql --repo gardenlinux/glvd-contrib
+      env:
+        GH_TOKEN: ${{ github.token }}
+    - name: Build Image
+      id: build_image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ${{ env.IMAGE_NAME }}
+        tags: ${{ env.IMAGE_TAG }}
+        platforms: linux/amd64, linux/arm64
+        containerfiles: |
+          ./Containerfile.pg-init
+
+    - name: Push To ghcr.io
+      id: push-to-ghcr
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build_image.outputs.image }}
+        tags: ${{ steps.build_image.outputs.tags }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
