@@ -28,6 +28,8 @@ jobs:
         sudo apt-get install -y qemu-user-static
     - run: |
         gh run download 10905326712 -n glvd.sql --repo gardenlinux/glvd-contrib
+      env:
+        GH_TOKEN: ${{ github.token }}
     - name: Build Image
       id: build_image
       uses: redhat-actions/buildah-build@v2
