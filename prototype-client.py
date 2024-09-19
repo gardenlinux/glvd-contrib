@@ -1,5 +1,6 @@
 import subprocess
 import requests
+import json
 
 def convert_binary_package_name_to_source_package_name(binary_package_name):
     apt_cache_show = subprocess.run(['apt-cache', 'show', binary_package_name], capture_output=True)
@@ -36,16 +37,11 @@ lines = [line for line in query_out.splitlines() if line.startswith('ii')]
 binary_package_names = [line.split(" ")[2] for line in lines]
 source_package_names = list(set([convert_binary_package_name_to_source_package_name(binary_package_name) for binary_package_name in binary_package_names]))
 
-print(source_package_names)
+# print(source_package_names)
 
 headers = {
     'accept': 'application/json',
     'Content-Type': 'application/json',
-}
-
-params = {
-    'sortBy': 'cveId',
-    'sortOrder': 'ASC',
 }
 
 json_data = {
@@ -54,10 +50,15 @@ json_data = {
 
 response = requests.put(
     'https://glvd.ingress.glvd.gardnlinux.shoot.canary.k8s-hana.ondemand.com/v1/cves/1592.0/packages',
-    params=params,
     headers=headers,
     json=json_data,
 )
 
-print(response)
-print(response.text)
+# print(response)
+# print(response.text)
+
+if response.status_code == 200:
+    vulns = json.loads(response.text)
+    print('CVE ID\t\tSource Package\tVersion\tCVE Score')
+    for vuln in vulns:
+        print(f'{vuln['cveId']}\t{vuln['sourcePackageName']}\t{vuln['sourcePackageVersion']}\t{vuln['baseScore']}')
