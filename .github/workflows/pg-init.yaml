@@ -23,7 +23,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y qemu-user-static
     - run: |
-        LATEST_RUN_ID=$(gh run list --repo gardenlinux/glvd-contrib --branch main --json workflowDatabaseId --limit 1 | jq -r '.[0].workflowDatabaseId')
+        LATEST_RUN_ID=$(gh run list --repo gardenlinux/glvd-contrib --branch main --workflow ingest-snapshot.yaml --json databaseId --limit 1 | jq -r '.[0].databaseId')
         gh run download $LATEST_RUN_ID -n glvd.sql --repo gardenlinux/glvd-contrib
       env:
         GH_TOKEN: ${{ github.token }}
