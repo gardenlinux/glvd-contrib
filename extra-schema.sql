@@ -64,3 +64,27 @@ CREATE OR REPLACE VIEW public.sourcepackage
 ALTER TABLE public.sourcepackage
     OWNER TO glvd;
 
+-- View: public.cvedetails
+
+-- DROP VIEW public.cvedetails;
+
+CREATE OR REPLACE VIEW public.cvedetails
+ AS
+ SELECT all_cve.cve_id,
+    all_cve.data -> 'vulnStatus'::text AS vulnstatus,
+    all_cve.data -> 'published'::text AS published,
+    ((all_cve.data -> 'descriptions'::text) -> 0) -> 'value'::text AS description,
+    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV40'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text)::numeric AS base_score_v40,
+    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text)::numeric AS base_score_v31,
+    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text)::numeric AS base_score_v30,
+    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV2'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text)::numeric AS base_score_v2,
+    ((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV40'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text AS vector_string_v40,
+    ((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text AS vector_string_v31,
+    ((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text AS vector_string_v30,
+    ((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV2'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text AS vector_string_v2
+   FROM all_cve
+  GROUP BY all_cve.cve_id;
+
+ALTER TABLE public.cvedetails
+    OWNER TO glvd;
+
