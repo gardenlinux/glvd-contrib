@@ -5,7 +5,7 @@ on:
 jobs:
   dump-db-snapshot:
     runs-on: ubuntu-latest
-    container: ghcr.io/gardenlinux/glvd:edge
+    container: ghcr.io/gardenlinux/glvd-data-ingestion:latest
     env:
       PGUSER: glvd
       PGDATABASE: glvd
@@ -15,7 +15,7 @@ jobs:
 
     services:
       postgres:
-        image: ghcr.io/gardenlinux/glvd-postgres:edgenotls
+        image: ghcr.io/gardenlinux/glvd-postgres:latest
         env:
           POSTGRES_USER: glvd
           POSTGRES_DB: glvd
