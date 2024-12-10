@@ -40,7 +40,9 @@ for cve in diff:
             else:
                 for v in new_version_numbers:
                     if pkg == v['sourcePackageName']:
-                        packages_to_fix_mapping[pkg] = {'fixes': [cve], 'version': v['sourcePackageVersion']}
+                        version_new = v['sourcePackageVersion']
+                        version_old = package_name['sourcePackageVersion']
+                        packages_to_fix_mapping[pkg] = {'fixes': [cve], 'version': version_new, 'version_old': version_old}
 
 packages = set(sorted(packages))
 # print(packages)
@@ -49,6 +51,6 @@ packages = set(sorted(packages))
 print('The following packages have been upgraded, to address the mentioned CVEs:')
 for package_name in packages_to_fix_mapping.keys():
     package = packages_to_fix_mapping[package_name]
-    print(f"- upgrade '{package_name}' to `{package['version']}`")
+    print(f"- upgrade '{package_name}' from `{package['version_old']}` to `{package['version']}`")
     for cve in package['fixes']:
         print(f'  - {cve}')
