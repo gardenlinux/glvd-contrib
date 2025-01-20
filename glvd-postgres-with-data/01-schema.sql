@@ -48,18 +48,36 @@ CREATE TABLE public.all_cve (
 
 ALTER TABLE public.all_cve OWNER TO glvd;
 
+--- xxx
+
+CREATE TYPE cve_status AS ENUM (
+    'not applicable',
+    'already patched',
+    'vendor patched',
+    'not available'
+);
+
+CREATE DOMAIN cve_id AS varchar(20)
+    CHECK (VALUE ~ '^CVE-[0-9]{4}-[0-9]{4,}$');
+
+--- xxx
+
+
+
 --
 -- Name: cve_context; Type: TABLE; Schema: public; Owner: glvd
 --
 
 CREATE TABLE public.cve_context (
     dist_id integer NOT NULL,
-    cve_id text NOT NULL,
+    cve_id cve_id NOT NULL,
     create_date timestamp with time zone DEFAULT now() NOT NULL,
-    context_descriptor text NOT NULL,
+    context_descriptor text NOT NULL, -- i.e. what variant/environment/image-type does this apply to?
     score_override numeric,
     description text NOT NULL,
-    is_resolved boolean DEFAULT true
+    is_resolved boolean DEFAULT FALSE,
+    affected_packages text[],
+    status cve_status NOT NULL, -- Enum type for status
 );
 
 
