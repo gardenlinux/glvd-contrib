@@ -2,7 +2,7 @@ import requests
 
 # just a proof of concept, don't judge the code
 
-version = 'today'
+version = '1592.5'
 previous_version = '1592.4'
 
 url = f"https://glvd.ingress.glvd.gardnlinux.shoot.canary.k8s-hana.ondemand.com/v1/cves/{version}"
