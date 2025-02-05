@@ -10,7 +10,9 @@ def fetch_patch_release_notes(hostname, version):
 
 
 def generate_formatted_output(data):
-    output = ['The following packages have been upgraded, to address the mentioned CVEs:']
+    output = [
+        "The following packages have been upgraded, to address the mentioned CVEs:"
+    ]
     for package in data["packageList"]:
         upgrade_line = (
             f"- upgrade '{package['sourcePackageName']}' from `{package['oldVersion']}` "
@@ -30,7 +32,11 @@ def main():
         description="Print information about fixed CVEs in Garden Linux patch releases."
     )
     parser.add_argument(
-        "--hostname", type=str, required=True, help="The hostname of the API endpoint."
+        "--hostname",
+        type=str,
+        required=False,
+        default="https://glvd.ingress.glvd.gardnlinux.shoot.canary.k8s-hana.ondemand.com",
+        help="The hostname of the API endpoint.",
     )
     parser.add_argument(
         "--version",
