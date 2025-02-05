@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 17.2 (Debian 17.2-1.pgdg120+1)
--- Dumped by pg_dump version 17.2 (Debian 17.2-1.pgdg120+1)
+-- Dumped by pg_dump version 17.2 (Debian 17.2-1+b2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -87,6 +87,8 @@ SELECT
     NULL::text AS cve_id,
     NULL::json AS vulnstatus,
     NULL::json AS published,
+    NULL::json AS modified,
+    NULL::timestamp with time zone AS ingested,
     NULL::text[] AS cve_context_description,
     NULL::text[] AS distro,
     NULL::text[] AS distro_version,
@@ -220,6 +222,8 @@ CREATE VIEW public.sourcepackagecve AS
     deb_cve.debsec_vulnerable,
     cve_context.is_resolved,
     (all_cve.data ->> 'published'::text) AS cve_published_date,
+    (all_cve.data ->> 'lastModified'::text) AS cve_last_modified_date,
+    all_cve.last_mod AS cve_last_ingested_date,
         CASE
             WHEN (((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric IS NOT NULL) THEN ((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric
             WHEN (((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric IS NOT NULL) THEN ((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric
@@ -368,9 +372,11 @@ CREATE INDEX deb_cve_search ON public.deb_cve USING btree (dist_id, debsec_vulne
 --
 
 CREATE OR REPLACE VIEW public.cvedetails AS
- SELECT all_cve.cve_id,
-    (all_cve.data -> 'vulnStatus'::text) AS vulnstatus,
-    (all_cve.data -> 'published'::text) AS published,
+ SELECT nvd_cve.cve_id,
+    (nvd_cve.data -> 'vulnStatus'::text) AS vulnstatus,
+    (nvd_cve.data -> 'published'::text) AS published,
+    (nvd_cve.data -> 'lastModified'::text) AS modified,
+    nvd_cve.last_mod AS ingested,
     array_agg(cve_context.description) AS cve_context_description,
     array_agg(dist_cpe.cpe_product) AS distro,
     array_agg(dist_cpe.cpe_version) AS distro_version,
@@ -378,20 +384,20 @@ CREATE OR REPLACE VIEW public.cvedetails AS
     array_agg(deb_cve.deb_source) AS source_package_name,
     array_agg((deb_cve.deb_version)::text) AS source_package_version,
     array_agg((deb_cve.deb_version_fixed)::text) AS version_fixed,
-    (((all_cve.data -> 'descriptions'::text) -> 0) -> 'value'::text) AS description,
-    ((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV40'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v40,
-    ((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v31,
-    ((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v30,
-    ((((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV2'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v2,
-    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV40'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v40,
-    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v31,
-    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v30,
-    (((((all_cve.data -> 'metrics'::text) -> 'cvssMetricV2'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v2
-   FROM (((public.all_cve
+    (((nvd_cve.data -> 'descriptions'::text) -> 0) -> 'value'::text) AS description,
+    ((((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV40'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v40,
+    ((((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v31,
+    ((((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v30,
+    ((((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV2'::text) -> 0) -> 'cvssData'::text) ->> 'baseScore'::text))::numeric AS base_score_v2,
+    (((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV40'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v40,
+    (((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV31'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v31,
+    (((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV30'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v30,
+    (((((nvd_cve.data -> 'metrics'::text) -> 'cvssMetricV2'::text) -> 0) -> 'cvssData'::text) ->> 'vectorString'::text) AS vector_string_v2
+   FROM (((public.nvd_cve
      JOIN public.deb_cve USING (cve_id))
      JOIN public.dist_cpe ON ((deb_cve.dist_id = dist_cpe.id)))
      FULL JOIN public.cve_context USING (cve_id, dist_id))
-  GROUP BY all_cve.cve_id;
+  GROUP BY nvd_cve.cve_id;
 
 
 --
