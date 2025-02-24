@@ -86,7 +86,8 @@ After getting familiar with the API, you can have a look at the [example request
 ### Make changes to the backend and try them out
 
 Prerequisites:
-- JDK 21 (SapMachine preferred)
+- JDK 21 (SapMachine preferred, download and install from https://sapmachine.io)
+  - Be sure to install the *JDK* version, the *JRE* is not enough
 
 Run `./gradlew bootJar` inside the `glvd-api` repo checkout to compile the backend.
 
@@ -98,3 +99,11 @@ It should start up and connect to the database automatically.
 
 Run `curl http://localhost:8080/actuator/health` again and observe the log of your backend instance.
 It should say something like `Initializing Servlet 'dispatcherServlet'`.
+
+Congratulations, you compiled the GLVD backend on your own, and are running it on your machine.
+You can now make changes to the source code, stop, rebuild and restart your instance and see if it does what you expect.
+
+### Run automated tests locally
+
+todo: this setup is not ideal, testcontainers and podman are not friends, needs rework
+
