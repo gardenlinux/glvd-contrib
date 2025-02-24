@@ -46,7 +46,7 @@ The cli client is available in the Garden Linux APT repo.
 
 With this setup, inside your local clone of the `gardenlinux/glvd` repo, you should be able to run `podman compose --file deployment/compose/compose.yaml up` which will bring up a local glvd environment including a recent snapshot of the database.
 
-You can check this using the Spring Boot actuater endpoint:
+You can check this using the Spring Boot Actuator endpoint:
 
 ```
 $ curl http://localhost:8080/actuator/health
@@ -75,7 +75,7 @@ The backend exposed port 8080 as we have already seen above in our `curl` comman
 
 ### Exploring the API
 
-Next, make yourself familar with GLVD's HTTP API.
+Next, make yourself familiar with GLVD's HTTP API.
 It is documented [here](https://gardenlinux.github.io/glvd-api/).
 
 > [!TIP]
