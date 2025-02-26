@@ -40,7 +40,7 @@ The cli client is available in the Garden Linux APT repo.
 - Make sure [podman is setup properly](https://podman.io/docs/installation)
 - Get the suitable [docker compose](https://github.com/docker/compose) binary and put it into your `PATH`
   - Running `podman compose` will use a 'provider' for working with compose files
-  - By default, it makes use of https://github.com/containers/podman-compose, which does not support all features neede by GLVD as of december 2024
+  - By default, it makes use of https://github.com/containers/podman-compose, which does not support all features needed by GLVD as of december 2024
   - If the `docker-compose` binary is in your `PATH`, `podman compose` will use that to crate containers
   - Using this method, you can use podman to run GLVD
 
@@ -103,7 +103,95 @@ It should say something like `Initializing Servlet 'dispatcherServlet'`.
 Congratulations, you compiled the GLVD backend on your own, and are running it on your machine.
 You can now make changes to the source code, stop, rebuild and restart your instance and see if it does what you expect.
 
+### Reading the backend source code
+
+The backend is implemented in Java using [Spring Boot](https://docs.spring.io/spring-boot/index.html).
+Some basic understanding of both Java and is therefore required to work on the backend.
+
+todo: description of how the backend is organized
+
+### Database schema
+
+GLVD's database schema is described [here](https://github.com/gardenlinux/glvd/blob/main/docs/03_ingestion.md#database).
+
+### Important VIEWs
+
+GLVD makes use of VIEWs to provide much of the data needed by the backend.
+The general idea is to solve things in the database as far as possible without resorting to procedural programming in the db.
+If logic in the backend can be replaced by an SQL VIEW, this should be done.
+
+We have the following views in GLVD:
+
+- `sourcepackage`
+  - `source_package_name`
+  - `source_package_version`
+  - `gardenlinux_version`
+
+todo: describe views in more details
+
+`cve_with_context`
+
+`sourcepackagecve`
+
+`cvedetails`
+
+`nvd_exclusive_cve`
+
+`nvd_exclusive_cve_matching_gl`
+
 ### Run automated tests locally
 
 todo: this setup is not ideal, testcontainers and podman are not friends, needs rework
+
+### Understanding the data ingestion process
+
+The data ingestion process is required to get a functioning glvd instance.
+
+In short, it collects and combines data from various public sources:
+
+- data from nist
+- data from debian security tracker
+- data from kernel.org vulns repo
+
+Running the ingestion from scratch takes long and might fail due to rate limiting.
+This is why container images with existing database dumps are published for glvd.
+
+### Gardener Setup for GLVD
+
+For running dev/test/prod environments, we make use of Gardener clusters.
+
+The [manifests are in the glvd/glvd repo](https://github.com/gardenlinux/glvd/tree/main/deployment/k8s), which also includes [a shell script](https://github.com/gardenlinux/glvd/blob/main/deploy-k8s.sh) that does the deployment.
+
+> [!NOTE]
+> This setup might change in the future, for example by making use of helm
+
+A running cluster with glvd setup will look like this:
+
+```
+$ kubectl get pods,jobs,sts,pvc
+NAME                                READY   STATUS      RESTARTS   AGE
+pod/glvd-5ffd969b55-cdnb8           1/1     Running     0          14h
+pod/glvd-database-0                 1/1     Running     0          14h
+pod/glvd-ingestion-29009250-lqqlg   0/1     Completed   0          127m
+
+NAME                                STATUS     COMPLETIONS   DURATION   AGE
+job.batch/glvd-ingestion-29006370   Complete   1/1           3m50s      2d2h
+job.batch/glvd-ingestion-29007810   Complete   1/1           4m33s      26h
+job.batch/glvd-ingestion-29009250   Complete   1/1           3m36s      127m
+
+NAME                             READY   AGE
+statefulset.apps/glvd-database   1/1     43d
+
+NAME                                                     STATUS   VOLUME                          CAPACITY   ACCESS MODES   STORAGECLASS
+persistentvolumeclaim/postgres-storage-glvd-database-0   Bound    pv-shoot--gardnlinux--glvd-xy   5Gi        RWO            default
+```
+
+We have two long running pods, one with the postgres db, and one with the backend.
+
+The db is controlled by a stateful set and has a persistent volume attached.
+
+We also have short-lived pods to update the db via the data ingestion container.
+This is controlled via a cronjob that runs daily.
+
+Note that the container images are automatically updated [via github actions](https://github.com/gardenlinux/glvd-api/blob/497ce994f97fc241be063cecb7bbb837b6413714/.github/workflows/ci.yaml#L155), so the cluster is always running the very latest version of glvd.
 
