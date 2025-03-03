@@ -122,26 +122,60 @@ If logic in the backend can be replaced by an SQL VIEW, this should be done.
 
 We have the following views in GLVD:
 
-- `sourcepackage`
-  - `source_package_name`
-  - `source_package_version`
-  - `gardenlinux_version`
+- `sourcepackage` provides information on which package in which version is in a specific Garden Linux release
+- `cve_with_context` provides additional context (i.e. 'triage') for a CVE
+- `sourcepackagecve` provides CVEs affecting a source package in a specific version in a Garden Linux release
+- `cvedetails` provides details of a CVE such as its CVSS Scores
+- `nvd_exclusive_cve` provides a list of CVE that only appear in NVD but not in the debian security tracker
+- `nvd_exclusive_cve_matching_gl` like `nvd_exclusive_cve`, but only with items that fuzzy-match any package in Garden Linux
 
-todo: describe views in more details
+### Inspect the db locally
 
-`cve_with_context`
+You can inspect and edit the local database using the `psql` cli tool in the podman container like in this example:
 
-`sourcepackagecve`
+```
+$ podman exec -it compose-glvd-postgres-1 bash -c "psql -U glvd glvd"
+psql (17.2 (Debian 17.2-1.pgdg120+1))
+Type "help" for help.
 
-`cvedetails`
+glvd=# \dt
+          List of relations
+ Schema |    Name     | Type  | Owner
+--------+-------------+-------+-------
+ public | all_cve     | table | glvd
+ public | cve_context | table | glvd
+ public | deb_cve     | table | glvd
+ public | debsec_cve  | table | glvd
+ public | debsrc      | table | glvd
+ public | dist_cpe    | table | glvd
+ public | nvd_cve     | table | glvd
+(7 rows)
+glvd=# \dv
+               List of relations
+ Schema |          Name          | Type | Owner
+--------+------------------------+------+-------
+ public | cve_with_context       | view | glvd
+ public | cvedetails             | view | glvd
+ public | recentsourcepackagecve | view | glvd
+ public | sourcepackage          | view | glvd
+ public | sourcepackagecve       | view | glvd
+(5 rows)
+```
 
-`nvd_exclusive_cve`
+You can also use GUI clients such as [pgAdmin](https://www.pgadmin.org) using this jdbc url: `jdbc:postgresql://localhost:5432/glvd`.
+All values (username, password, db name) are set to `glvd` by default **for the local setup**.
 
-`nvd_exclusive_cve_matching_gl`
+
 
 ### Run automated tests locally
 
-todo: this setup is not ideal, testcontainers and podman are not friends, needs rework
+The `glvd-api` project has tests which require a database.
+Inside the local checkout of `glvd-api`, the tests can be run with this:
+
+```bash
+./start-db-for-test.sh
+./gradlew test
+```
 
 ### Understanding the data ingestion process
 
@@ -193,5 +227,74 @@ The db is controlled by a stateful set and has a persistent volume attached.
 We also have short-lived pods to update the db via the data ingestion container.
 This is controlled via a cronjob that runs daily.
 
-Note that the container images are automatically updated [via github actions](https://github.com/gardenlinux/glvd-api/blob/497ce994f97fc241be063cecb7bbb837b6413714/.github/workflows/ci.yaml#L155), so the cluster is always running the very latest version of glvd.
+Note that the container images are automatically updated via github actions ([glvd-api](https://github.com/gardenlinux/glvd-api/blob/497ce994f97fc241be063cecb7bbb837b6413714/.github/workflows/ci.yaml#L155), [glvd-postgres](https://github.com/gardenlinux/glvd-postgres/blob/85042bd6e413bd0df265ab80568d484dd9ebbefa/.github/workflows/build-postgres-container.yml#L89)), so the cluster is always running the very latest version of glvd.
 
+### Inspect the db in the cluster
+
+Similar to what we've seen before, we can also work with the database in the cluster like in this example:
+
+```
+kubectl exec -it glvd-database-0 -- bash -c 'PAGER= psql -U glvd glvd'
+psql (17.2 (Debian 17.2-1.pgdg120+1))
+Type "help" for help.
+
+glvd=# \dt
+              List of relations
+ Schema |        Name        | Type  | Owner
+--------+--------------------+-------+-------
+ public | all_cve            | table | glvd
+ public | cve_context        | table | glvd
+.. (further entries omitted)
+```
+
+### Data Ingestion GitHub Actions workflows
+
+There are [multiple useful workflows](https://github.com/gardenlinux/glvd-data-ingestion/actions/) to make it more simple to work with the ingestion process.
+
+The workflows are numbered to make it more clear what depends on what.
+
+On push, only "01 - Build and Push Data Ingestion Container" is ran automatically.
+The other workflows need to be run on demand.
+
+Those workflows exist in this repo:
+
+#### 01 - Build and Push Data Ingestion Container
+
+This workflow builds and pushes the container where the ingestion is running.
+This container is used in the "Dump GLVD Postgres Snapshot to sql file" workflows, and in the cronjob mentioned above.
+
+#### 02 - Dump GLVD Postgres Snapshot to sql file
+
+This workflow runs a full ingestion job from scratch and exports a postgres dump file which can be imported.
+
+#### 02.5 - Dump GLVD Postgres Snapshot to sql file (incremental)
+
+This workflow is the same as "02 - Dump GLVD Postgres Snapshot to sql file", but it uses a previous dump if that exists which makes it much faster to run.
+Note that this workflow fails if no current dump is available from the 02 job.
+
+#### 03 - Build and Push Container to init GLVD Postgres DB
+
+This workflow builds and pushes the `gardenlinux/glvd-init` container image which is used both in the local Compose setup and in the cluster setup to fill the database with the dump that was created in "02 - Dump GLVD Postgres Snapshot to sql file".
+
+#### 03.5 - Build and Push Container to init GLVD Postgres DB (Incremental)
+
+Same as above but makes use of "02.5 - Dump GLVD Postgres Snapshot to sql file (incremental)".
+
+### glvd client
+
+If an image is built with the `glvd` feature, a binary client program called `glvd` is available in the instance.
+
+```
+$ ./build kvm_dev-glvd
+
+$ bin/start-vm .build/kvm-glvd_dev-xy.raw
+
+root@garden:~# glvd executive-summary
+This machine has 11 potential security issues
+Run `glvd check` to get the full list
+
+root@garden:~# glvd what-if vim
+CVE-2008-4677       4.3 AV:N/AC:M/Au:N/C:P/I:N/A:N                     vim                  2:9.1.1113-1
+CVE-2025-26603      4.2 CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:L   vim                  2:9.1.1113-1
+CVE-2017-1000382    5.5 CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N   vim                  2:9.1.1113-1
+```
