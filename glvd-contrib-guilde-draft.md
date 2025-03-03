@@ -19,6 +19,11 @@ It contains project-wide docs, and infrastructure definitions for deploying GLVD
 A postgres database is the central component of glvd.
 This repository contains a Containerfile to run this database.
 
+> [!IMPORTANT]  
+> This container image includes the [postgresql-debversion](https://salsa.debian.org/postgresql/postgresql-debversion) extension which is vital to GLVD.
+> It allows to compare debian package version numbers.
+> This is the reason why we absolutely need a postgres db to run glvd, and why this needs to run on top of a debian-based container image.
+
 ### [`gardenlinux/glvd-data-ingestion`](https://github.com/gardenlinux/glvd-data-ingestion)
 
 Data ingestion creates the required database schema and imports data from external sources such as NVD and the debian security tracker.
