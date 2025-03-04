@@ -113,7 +113,26 @@ You can now make changes to the source code, stop, rebuild and restart your inst
 The backend is implemented in Java using [Spring Boot](https://docs.spring.io/spring-boot/index.html).
 Some basic understanding of both Java and is therefore required to work on the backend.
 
-todo: description of how the backend is organized
+The `glvd-api` project implements both the HTTP API, and a very basic web user interface.
+
+As of March 2024, the whole backend is read-only by design.
+It does not include any endpoints or ui elements for adding, updating or deleting data.
+
+The backend needs a database instance to start.
+This is already there if you followed the steps described before.
+
+It makes use of the `JpaRepository` class provided by Spring to ease database access.
+You can find the `*Repository` classes by their name.
+
+The `GlvdService` class is the ui independent part which provides functions to be used both by the web ui and by the HTTP api.
+Mostly it only bridges between the `*Repository` classes that communicate with the db and the ui/api layer.
+
+The HTTP api is implemented as a simple `RestController`.
+
+The web ui is built using [thymeleaf](https://www.thymeleaf.org), which is a templating language that is built into Spring Boot.
+You can find the templates in `src/main/resources/templates`, and the code for populating them in `src/main/java/io/gardenlinux/glvd/UiController.java`.
+
+The existing code should be relatively easy to adapt to changing requirements.
 
 ### Database schema
 
