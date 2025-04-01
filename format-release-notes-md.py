@@ -21,8 +21,8 @@ def generate_formatted_output(data):
         output.append(upgrade_line)
 
         if package["fixedCves"]:
-            cve_line = "  - " + ", ".join(package["fixedCves"])
-            output.append(cve_line)
+            for c in package["fixedCves"]:
+                output.append(f"  - {c}")
 
     return "\n".join(output)
 
