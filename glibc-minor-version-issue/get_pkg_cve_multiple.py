@@ -63,4 +63,11 @@ for component, cves in result.items():
                     output[component][cve_id][str(minor_version)]['fixed_versions'].append(entry['fixed_version'])
     # print()
 
-print(json.dumps(output, indent=2))
+# Remove empty objects from output
+filtered_output = {}
+for component, cves in output.items():
+    filtered_cves = {cve_id: minors for cve_id, minors in cves.items() if minors}
+    if filtered_cves:
+        filtered_output[component] = filtered_cves
+
+print(json.dumps(filtered_output, indent=2))

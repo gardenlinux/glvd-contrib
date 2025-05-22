@@ -1,3 +1,3 @@
 all:
 	wget --no-clobber https://security-tracker.debian.org/tracker/data/json
-	python parse.py
+	python get_pkg_cve_all.py
