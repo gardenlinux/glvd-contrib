@@ -1,0 +1,12 @@
+FROM ghcr.io/gardenlinux/glvd-postgres:latest
+
+RUN apt-get update && \
+    apt-get install -y python3-pip
+
+RUN pip install --break-system-packages testgres
+    
+RUN rm /docker-entrypoint-initdb.d/create-extension.sql
+
+COPY 01-schema.sql /docker-entrypoint-initdb.d/01-schema.sql
+COPY 02-sample-data.sql /docker-entrypoint-initdb.d/02-sample-data.sql
+COPY tests/* /tests
