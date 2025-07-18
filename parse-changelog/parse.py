@@ -9,6 +9,7 @@ import json
 import tempfile
 import gzip
 import shutil
+import argparse
 
 # Setup logging
 logging.basicConfig(
@@ -73,7 +74,7 @@ def add_cve_entry(resolved_cves, cve_id, package_name, changelog_text):
         resolved_cves[cve_id][package_name] = []
     resolved_cves[cve_id][package_name].append(changelog_text)
 
-def do_work(file_path):
+def do_work(file_path, gl_version):
     logger.info(f"Processing source index file: {file_path}")
     parsed_entries = parse_debian_apt_source_index_file(file_path)
     logger.info(f"Found {len(parsed_entries)} entries in source index file")
@@ -108,7 +109,7 @@ def do_work(file_path):
                                 for cve in vulnerable_cves:
                                     cve = str.strip(cve)
                                     if cve in change:
-                                        add_cve_entry(resolved_cves, cve, entry['Package'], change)
+                                        add_cve_entry(resolved_cves, cve, entry['Package'], f"Automated triage based on changelog from {changelog_entry.date} in version {changelog_entry.version}:\n{change}")
                 except Exception as e:
                     logger.error(f"Failed to extract or parse changelog for {entry['Package']}: {e}")
                     continue
@@ -120,7 +121,7 @@ def do_work(file_path):
             pass
 
     try:
-        with open('resolved_cves.json', 'w') as f:
+        with open(f'resolved_cves_{gl_version}.json', 'w') as f:
             json.dump(resolved_cves, f, indent=2)
         logger.info("Wrote resolved CVEs to resolved_cves.json")
     except Exception as e:
@@ -150,7 +151,10 @@ def download_and_extract_sources(gl_version, tmpdir):
         raise
 
 def main():
-    gl_version = '1877.1'
+    parser = argparse.ArgumentParser(description="Parse changelogs for resolved CVEs.")
+    parser.add_argument("gl_version", help="Garden Linux version to process (e.g., 1877.1)")
+    args = parser.parse_args()
+    gl_version = args.gl_version
     global vulnerable_cves
     global resolved_cves
     resolved_cves = {}
@@ -169,7 +173,7 @@ def main():
     with tempfile.TemporaryDirectory() as tmpdir:
 
         sources_path = download_and_extract_sources(gl_version, tmpdir)
-        do_work(sources_path)
+        do_work(sources_path, gl_version)
 
 if __name__ == "__main__":
     main()
