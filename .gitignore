@@ -4,3 +4,4 @@ few-cve.jsonl
 glibc-minor-version-issue/json
 **/.venv
 glvd-postgres-with-data copy/glvd-dump-10.sql
+parse-changelog/changelogs
