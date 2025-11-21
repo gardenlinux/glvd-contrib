@@ -35,7 +35,7 @@ def main():
         "--hostname",
         type=str,
         required=False,
-        default="https://glvd.ingress.glvd.gardnlinux.shoot.canary.k8s-hana.ondemand.com",
+        default="https://security.gardenlinux.org",
         help="The hostname of the API endpoint.",
     )
     parser.add_argument(
