@@ -5,10 +5,10 @@ import requests
 version = '1592.5'
 previous_version = '1592.4'
 
-url = f"https://glvd.ingress.glvd.gardnlinux.shoot.canary.k8s-hana.ondemand.com/v1/cves/{version}"
+url = f"https://security.gardenlinux.org/v1/cves/{version}"
 cves_new = requests.get(url).json()
 
-url_previous = f"https://glvd.ingress.glvd.gardnlinux.shoot.canary.k8s-hana.ondemand.com/v1/cves/{previous_version}"
+url_previous = f"https://security.gardenlinux.org/v1/cves/{previous_version}"
 cves_old = requests.get(url_previous).json()
 
 list_cves_new = [{'cveId': cve['cveId'], 'sourcePackageName': cve['sourcePackageName'], 'sourcePackageVersion': cve['sourcePackageVersion']} for cve in cves_new]
@@ -19,7 +19,7 @@ diff = list(set([x['cveId'] for x in list_cves_old]) - set([x['cveId'] for x in 
 # print(diff)
 
 
-url = f"https://glvd.ingress.glvd.gardnlinux.shoot.canary.k8s-hana.ondemand.com/v1/distro/{version}"
+url = f"https://security.gardenlinux.org/v1/distro/{version}"
 
 new_version_numbers = requests.get(url).json()
 
