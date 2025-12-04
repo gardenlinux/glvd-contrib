@@ -1,0 +1,8 @@
+FROM ghcr.io/gardenlinux/glvd-postgres:latest
+
+RUN rm /docker-entrypoint-initdb.d/create-extension.sql
+
+COPY 01-schema.sql /docker-entrypoint-initdb.d/01-schema.sql
+COPY 02-sample-data.sql /docker-entrypoint-initdb.d/02-sample-data.sql
+COPY 03a-normalized.sql /docker-entrypoint-initdb.d/03a-normalized.sql
+COPY 03b-arrays.sql /docker-entrypoint-initdb.d/03b-arrays.sql
