@@ -59,6 +59,7 @@ jobs:
         with:
           name: sourcemanifest-${{ matrix.tag }}-${{ matrix.image }}
           path: gardenlinux/.build/*.sourcemanifest
+          include-hidden-files: true
 
   collect-sourcemanifests:
     runs-on: ubuntu-latest
