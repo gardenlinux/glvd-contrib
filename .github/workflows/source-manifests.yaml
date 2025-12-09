@@ -1,0 +1,82 @@
+name: Build Gardenlinux Images for Tags
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag:
+          - "1443.18"
+          - "1443.19"
+          - "1443.20"
+          - "1443.21"
+          - "1592.10"
+          - "1592.11"
+          - "1592.12"
+          - "1592.13"
+          - "1592.14"
+          - "1592.15"
+          - "1592.16"
+          - "1592.4"
+          - "1592.5"
+          - "1592.6"
+          - "1592.7"
+          - "1592.8"
+          - "1592.9"
+          - "1877.0"
+          - "1877.1"
+          - "1877.2"
+          - "1877.3"
+          - "1877.4"
+          - "1877.5"
+          - "1877.6"
+          - "1877.7"
+          - "1877.8"
+          - "1877.9"
+        image:
+          - "ali"
+          - "aws"
+          - "azure"
+          - "gcp"
+          - "openstack"
+    steps:
+      - name: Checkout workflow repo
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Clone gardenlinux repo
+        run: |
+          git clone https://github.com/gardenlinux/gardenlinux.git
+          cd gardenlinux
+          git checkout ${{ matrix.tag }}
+
+      - name: Build image
+        run: |
+          cd gardenlinux
+          ./build --container-image ghcr.io/gardenlinux/builder:04e9781b20811f22d51aa0edcfa03d2ad1a9c4df "${{ matrix.image }}-gardener_prod"
+
+      - name: Upload sourcemanifest artifact
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: sourcemanifest-${{ matrix.tag }}-${{ matrix.image }}
+          path: gardenlinux/.build/*.sourcemanifest
+
+  collect-sourcemanifests:
+    runs-on: ubuntu-latest
+    needs: build-images
+    steps:
+      - name: Download all sourcemanifest artifacts
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          path: all_sourcemanifests
+      - name: Zip all sourcemanifests
+        run: |
+          cd all_sourcemanifests
+          zip -r ../all-sourcemanifests.zip .
+      - name: Upload all sourcemanifests zip
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: all-sourcemanifests
+          path: all-sourcemanifests.zip
