@@ -50,7 +50,8 @@ jobs:
         run: |
           git clone https://github.com/gardenlinux/gardenlinux.git
           cd gardenlinux
-          git checkout ${{ matrix.tag }}
+          git fetch --tags
+          git checkout tags/${{ matrix.tag }}
 
       - name: Build image
         run: |
