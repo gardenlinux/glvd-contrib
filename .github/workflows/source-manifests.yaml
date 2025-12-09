@@ -52,7 +52,7 @@ jobs:
       - name: Build image
         run: |
           cd gardenlinux
-          ./build --container-engine docker --container-image ghcr.io/gardenlinux/builder:04e9781b20811f22d51aa0edcfa03d2ad1a9c4df "${{ matrix.image }}-gardener_prod"
+          ./build --container-image ghcr.io/gardenlinux/builder:04e9781b20811f22d51aa0edcfa03d2ad1a9c4df "${{ matrix.image }}-gardener_prod"
 
       - name: Upload sourcemanifest artifact
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
