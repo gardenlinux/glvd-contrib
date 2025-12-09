@@ -69,10 +69,14 @@ jobs:
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           path: all_sourcemanifests
-      - name: Zip all sourcemanifests
+      - name: Move all sourcemanifests to top level
         run: |
-          cd all_sourcemanifests
-          zip -r ../all-sourcemanifests.zip .
+          mkdir flat_sourcemanifests
+          find all_sourcemanifests -type f -name '*.sourcemanifest' -exec mv {} flat_sourcemanifests/ \;
+      - name: Zip all sourcemanifests (no subdirectories)
+        run: |
+          cd flat_sourcemanifests
+          zip ../all-sourcemanifests.zip ./*
       - name: Upload all sourcemanifests zip
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
