@@ -10,19 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         tag:
-          # - "1592.10"
-          # - "1592.11"
-          # - "1592.12"
-          # - "1592.13"
-          # - "1592.14"
-          # - "1592.15"
-          # - "1592.16"
-          # - "1592.4"
-          # - "1592.5"
-          # - "1592.6"
-          # - "1592.7"
-          # - "1592.8"
-          # - "1592.9"
           - "1877.0"
           - "1877.1"
           - "1877.2"
@@ -32,6 +19,7 @@ jobs:
           - "1877.6"
           - "1877.7"
           - "1877.8"
+          - "main"
         image:
           - "ali"
           - "aws"
@@ -46,8 +34,11 @@ jobs:
         run: |
           git clone https://github.com/gardenlinux/gardenlinux.git
           cd gardenlinux
-          git fetch --tags
-          git checkout tags/${{ matrix.tag }}
+
+          if [ "${{ matrix.tag }}" != "main" ]; then
+            git fetch --tags
+            git checkout tags/${{ matrix.tag }}
+          fi
 
       - name: Build image
         run: |
