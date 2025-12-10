@@ -10,6 +10,21 @@ jobs:
       fail-fast: false
       matrix:
         tag:
+          - "1443.18"
+          - "1443.19"
+          - "1443.20"
+          - "1592.10"
+          - "1592.11"
+          - "1592.12"
+          - "1592.13"
+          - "1592.14"
+          - "1592.15"
+          - "1592.4"
+          - "1592.5"
+          - "1592.6"
+          - "1592.7"
+          - "1592.8"
+          - "1592.9"
           - "1877.0"
           - "1877.1"
           - "1877.2"
@@ -42,7 +57,11 @@ jobs:
 
       - name: Build image
         run: |
-          cd gardenlinux
+          # for versions that start with 14 or 15, download the keyring from main branch
+          if [[ "${{ matrix.tag }}" =~ ^14|^15 ]]; then
+            rm keyring.gpg
+            curl -L -o keyring.gpg https://github.com/gardenlinux/gardenlinux/raw/refs/heads/main/keyring.gpg
+          fi
           ./build --container-image ghcr.io/gardenlinux/builder:04e9781b20811f22d51aa0edcfa03d2ad1a9c4df "${{ matrix.image }}-gardener_prod"
 
       - name: Upload sourcemanifest artifact
