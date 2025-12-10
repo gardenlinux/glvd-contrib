@@ -58,7 +58,7 @@ jobs:
       - name: Save latest commit id
         id: commit_id
         run: |
-          echo "commit_id=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_id=$(git rev-parse --short=8 HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build image
         run: |
