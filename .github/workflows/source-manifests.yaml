@@ -57,6 +57,7 @@ jobs:
 
       - name: Build image
         run: |
+          cd gardenlinux
           # for versions that start with 14 or 15, download the keyring from main branch
           if [[ "${{ matrix.tag }}" =~ ^14|^15 ]]; then
             rm keyring.gpg
